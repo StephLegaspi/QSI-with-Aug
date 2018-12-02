@@ -1,8 +1,36 @@
 
+ColNames <- function(interval){
+  col_names <- c()
+  for(i in 1:interval){
+    if(i != 1){
+      col = paste("a", i, sep = "")
+      col_names <- c(col_names, col)
+    }
+    
+    col = paste("b", i, sep = "")
+    col_names <- c(col_names, col)
+    
+    col = paste("c", i, sep = "")
+    col_names <- c(col_names, col)
+  }
+  
+  col_names <- c(col_names, "RHS")
+  return(col_names)
+}
+
+RowNames <- function(interval){
+  rows = c()
+  for(i in 1:interval){
+    rows <- c(rows, i)
+  }
+  return(rows);
+}
 
 FirstSet <- function(x, y, n, m){
   col = 0
   row = 1
+  equations_list <- c()
+  
   for(i in 2:(n-1)){
     var = paste("a", i-1, sep = "") 
     term = paste(x[i]^2, var, sep = " * ")
@@ -53,6 +81,7 @@ FirstSet <- function(x, y, n, m){
 
 
 SecondSet <- function(x, y, n, m, row, matrix_size){
+  equations_list <- c()
   col = 1
   
   var = "a1"
@@ -96,7 +125,9 @@ SecondSet <- function(x, y, n, m, row, matrix_size){
 }
 
 ThirdSet <- function(x, y, n, m, row){
+  equations_list <- c()
   col = 1
+  
   for(i in 2:(n-1)){
     var = paste("a", i-1, sep = "")
     term = paste(2*x[i], var, sep = " * ")
@@ -125,9 +156,9 @@ ThirdSet <- function(x, y, n, m, row){
   return(list(equations_list = equations_list, m=m))
 }
 
-QuadraticSpline <- function(x, y, n, matrix_size){
+QuadraticSpline <- function(x, y, n, matrix_size, interval){
   equations_list <- c()
-  init_m = matrix(data=0, nrow=matrix_size, ncol=matrix_size+1)
+  init_m = matrix(data=0, nrow=matrix_size, ncol=matrix_size+1, dimnames = list(RowNames(matrix_size), ColNames(interval)))
   
   o = order(x)
   x = x[o]
@@ -155,7 +186,7 @@ n = length(x)
 interval = n-1
 matrix_size = (3*interval)-1
 
-functions_list = QuadraticSpline(x, y, n, matrix_size)
+functions_list = QuadraticSpline(x, y, n, matrix_size, interval)
 print(functions_list)
 
 
