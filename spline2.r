@@ -172,7 +172,42 @@ SetUpRHS <- function(m, RHS, interval, matrix_size){
   return(m)
 }
 
-QuadraticSpline <- function(x, y, n, matrix_size, interval){
+SetUpFunctions <- function(sol_set, interval){
+  print(sol_set)
+  func_list <- c()
+  
+  count=0
+  term=""
+  for(i in 1:interval){
+    if(i != 1){
+      term = paste(sol_set[(i+count)], "x ^ 2", sep = " * ")
+      term = paste(term, " + ", sep = "")
+      count = count+1
+    }
+    
+    second_term = paste(sol_set[(i+count)], "x", sep = " * ")
+    term = paste(term, second_term, sep = "")
+    term = paste(term, " + ", sep = "")
+    
+    term = paste(term, sol_set[(i+count+1)], sep = " ")
+    
+    count = count+1
+    func_list <- c(func_list, term)
+  }
+  return(func_list)
+}
+
+FindInterval <- function(x_init, x, n){
+  for(i in 1:(n-1)){
+    if(x_init > x[i] && x_init < x[(i+1)]){
+      return(i)
+    }
+  }
+}
+
+QuadraticSpline <- function(x_init, x, y, n){
+  interval = n-1
+  matrix_size = (3*interval)-1
   equations_list <- c()
   init_m = matrix(data=0, nrow=matrix_size, ncol=matrix_size+1, dimnames = list(RowNames(matrix_size), ColNames(interval)))
   
@@ -191,21 +226,23 @@ QuadraticSpline <- function(x, y, n, matrix_size, interval){
   
   final_matrix = SetUpRHS(third_set$m, RHS, interval, matrix_size)
   g = GaussJordanElimination(final_matrix, matrix_size, ColNames(interval))
-  return(list(eq_list=equations_list, final_matrix=final_matrix, sol_set=g$solutionSet))
+  func_list = SetUpFunctions(g$solutionSet, interval)
+  
+  func_interval = FindInterval(x_init, x, n)
+  func_eval = eval(parse(text = paste('f <- function(', args, ') { return(' , func_list[func_interval] , ')}', sep='')))
+  func_estimate = paste('f <- function(', args, ') { return(' , func_list[func_interval] , ')}', sep='')
+  return(list(eq_list=equations_list, final_matrix=final_matrix, sol_set=g$solutionSet, func_list=func_list, func_estimate=func_estimate, func_eval=func_eval))
 }
 
 
-#x <- c(3, 7,4.5, 9)
-#y <- c(2.5, 2.5, 1, 0.5)
-x <- c(1.6, 2, 2.5)
-y <- c(2, 8, 14)
+x <- c(3, 7,4.5, 9)
+y <- c(2.5, 2.5, 1, 0.5)
+#x <- c(1.6, 2, 2.5)
+#y <- c(2, 8, 14)
 n = length(x)
 
-interval = n-1
-matrix_size = (3*interval)-1
-
-qsi_result = QuadraticSpline(x, y, n, matrix_size, interval)
-print(qsi_result)
+qsi_result = QuadraticSpline(5, x, y, n)
+print(qsi_result$func_eval(5))
 
 
 
