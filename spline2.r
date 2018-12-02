@@ -1,3 +1,6 @@
+this.dir <- dirname(parent.frame(2)$ofile)
+setwd(this.dir)
+source("legaspi_ex4.r")
 
 ColNames <- function(interval){
   col_names <- c()
@@ -186,24 +189,23 @@ QuadraticSpline <- function(x, y, n, matrix_size, interval){
   equations_list <- c(equations_list, second_set$equations_list)
   equations_list <- c(equations_list, third_set$equations_list)
   
-  print(third_set$m)
   final_matrix = SetUpRHS(third_set$m, RHS, interval, matrix_size)
-  print(final_matrix)
-  return(equations_list)
+  g = GaussJordanElimination(final_matrix, matrix_size, ColNames(interval))
+  return(list(eq_list=equations_list, final_matrix=final_matrix, sol_set=g$solutionSet))
 }
 
 
-x <- c(3, 7,4.5, 9)
-y <- c(2.5, 2.5, 1, 0.5)
-#x <- c(1.6, 2, 2.5)
-#y <- c(2, 8, 14)
+#x <- c(3, 7,4.5, 9)
+#y <- c(2.5, 2.5, 1, 0.5)
+x <- c(1.6, 2, 2.5)
+y <- c(2, 8, 14)
 n = length(x)
 
 interval = n-1
 matrix_size = (3*interval)-1
 
-functions_list = QuadraticSpline(x, y, n, matrix_size, interval)
-print(functions_list)
+qsi_result = QuadraticSpline(x, y, n, matrix_size, interval)
+print(qsi_result)
 
 
 
